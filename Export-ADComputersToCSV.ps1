@@ -11,15 +11,15 @@ The script retrieves a specified set of properties for all computers in the Acti
 - Appropriate file system permissions to write to the output directory.
 
 .PARAMETERS
-No parameters. Modify the script variables directly to customize as needed.
+- Properties: An array of properties to retrieve from the Active Directory computers.
+- OutputPath: The path where the CSV file will be saved.
 
 .USAGE NOTES
 - Ensure the user running the script has the necessary permissions in Active Directory and access rights to write to the specified directory.
-- Modify the $outputPath variable as needed to specify a different output directory. The default path is set to C:\ with a timestamped file name for uniqueness.
 - This script assumes the Active Directory PowerShell module is installed.
 
 .EXAMPLE
-No additional steps required for execution. Run the script in a PowerShell session with appropriate privileges.
+.\Export-ADComputersToCSV.ps1 -Properties "Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate" -OutputPath "C:\ADComputersList.csv"
 
 .NOTES
 Author: David Dias
@@ -28,7 +28,10 @@ Date: 02/23/2024
 
 #>
 
-# Improved Script for Exporting AD Computers List
+param (
+    [string[]]$Properties = @("Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate"),
+    [string]$OutputPath = "C:\ADComputersList_{0:yyyyMMddHHmmss}.csv" -f (Get-Date)
+)
 
 # Check if the Active Directory module is available and import it
 if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
@@ -37,23 +40,17 @@ if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
 }
 Import-Module ActiveDirectory
 
-# Define the properties you want to retrieve
-$properties = @("Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate")
-
-# Specify the output file path, incorporating a timestamp for uniqueness
-$outputPath = "C:\ADComputersList_{0:yyyyMMddHHmmss}.csv" -f (Get-Date)
-
 # Encapsulate the main logic in a try-catch block for error handling
 try {
     # Get the list of all computers from Active Directory
-    $computers = Get-ADComputer -Filter * -Properties $properties
+    $computers = Get-ADComputer -Filter * -Properties $Properties
 
     # Check if any computers were found
     if ($computers) {
         # Export the list to a CSV file
-        $computers | Select-Object $properties | Export-Csv -Path $outputPath -NoTypeInformation
+        $computers | Select-Object $Properties | Export-Csv -Path $OutputPath -NoTypeInformation
 
-        Write-Host "Computers list has been exported to $outputPath"
+        Write-Host "Computers list has been exported to $OutputPath"
     } else {
         Write-Warning "No computers found in the Active Directory."
     }
