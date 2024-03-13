@@ -19,7 +19,7 @@ The script retrieves a specified set of properties for all computers in the Acti
 - This script assumes the Active Directory PowerShell module is installed.
 
 .EXAMPLE
-.\Export-ADComputersToCSV.ps1 -Properties "Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate" -OutputPath "C:\ADComputersList.csv"
+.\Export-ADComputersToCSV.ps1 -Properties "Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate", "OperatingSystem" -OutputPath "C:\ADComputersList.csv"
 
 .NOTES
 Author: David Dias
@@ -29,7 +29,7 @@ Date: 02/23/2024
 #>
 
 param (
-    [string[]]$Properties = @("Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate"),
+    [string[]]$Properties = @("Name", "Enabled", "DistinguishedName", "ObjectClass", "LastLogonDate", "OperatingSystem"),
     [string]$OutputPath = "C:\ADComputersList_{0:yyyyMMddHHmmss}.csv" -f (Get-Date)
 )
 
